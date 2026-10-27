@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head('My applications')}"></head>
+<body>
+<div th:replace="~{fragments/common :: navbar}"></div>
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="m-0">My Applications</h3>
+        <a class="btn btn-primary" th:href="@{/apply}">New application</a>
+    </div>
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+
+    <div class="card mb-4">
+        <table class="table table-hover mb-0">
+            <thead>
+            <tr><th>#</th><th>Amount</th><th>Term</th><th>Purpose</th><th>Status</th><th>Submitted</th></tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(applications)}">
+                <td colspan="6" class="text-muted">No applications yet.</td>
+            </tr>
+            <tr th:each="app : ${applications}" style="cursor: pointer"
+                th:onclick="|location.href='@{/applications/{id}(id=${app.id})}'|">
+                <td th:text="${app.id}"></td>
+                <td th:text="${app.loanAmount}"></td>
+                <td th:text="${app.termMonths + ' mo'}"></td>
+                <td th:text="${app.loanPurpose}"></td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${app.status.name() == 'APPROVED'} ? 'text-bg-success'
+                                        : (${app.status.name() == 'REJECTED'} ? 'text-bg-danger'
+                                        : (${app.status.name() == 'PENDING_MANUAL_REVIEW'} ? 'text-bg-warning'
+                                        : 'text-bg-secondary'))"
+                          th:text="${app.status}"></span>
+                </td>
+                <td th:text="${#temporals.format(app.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h5>Notifications</h5>
+    <div class="list-group">
+        <div th:if="${#lists.isEmpty(notifications)}" class="text-muted">No notifications.</div>
+        <div class="list-group-item" th:each="n : ${notifications}">
+            <div class="d-flex justify-content-between">
+                <strong th:text="${n.subject}"></strong>
+                <small class="text-muted" th:text="${#temporals.format(n.sentAt, 'yyyy-MM-dd HH:mm')}"></small>
+            </div>
+            <p class="mb-0" style="white-space: pre-line" th:text="${n.body}"></p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

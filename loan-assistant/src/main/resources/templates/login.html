@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head('Sign in')}"></head>
+<body>
+<nav class="navbar navbar-dark bg-dark mb-4">
+    <div class="container"><span class="navbar-brand">Loan Assistant</span></div>
+</nav>
+<div class="container" style="max-width: 420px;">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h4 class="card-title mb-3">Sign in</h4>
+            <div th:if="${param.error != null}" class="alert alert-danger py-2">
+                Invalid username or password.
+            </div>
+            <div th:if="${param.logout != null}" class="alert alert-success py-2">
+                You have been signed out.
+            </div>
+            <form th:action="@{/login}" method="post">
+                <div class="mb-3">
+                    <label class="form-label" for="username">Username</label>
+                    <input class="form-control" id="username" name="username" required autofocus>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="password">Password</label>
+                    <input class="form-control" id="password" name="password" type="password" required>
+                </div>
+                <button class="btn btn-primary w-100" type="submit">Sign in</button>
+            </form>
+        </div>
+    </div>
+    <p class="text-muted small mt-3 text-center">
+        Demo accounts: customer/customer123 &middot; officer/officer123 &middot; admin/admin123
+    </p>
+</div>
+</body>
+</html>

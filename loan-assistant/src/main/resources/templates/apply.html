@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head('Apply for a loan')}"></head>
+<body>
+<div th:replace="~{fragments/common :: navbar}"></div>
+<div class="container" style="max-width: 720px;">
+    <h3 class="mb-3">Loan Application</h3>
+    <form th:action="@{/apply}" th:object="${form}" method="post" enctype="multipart/form-data">
+        <div class="card mb-3">
+            <div class="card-header">Applicant</div>
+            <div class="card-body row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Full name</label>
+                    <input class="form-control" th:field="*{applicantName}">
+                    <div class="text-danger small" th:errors="*{applicantName}"></div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <input class="form-control" th:field="*{applicantEmail}" type="email">
+                    <div class="text-danger small" th:errors="*{applicantEmail}"></div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Annual income</label>
+                    <input class="form-control" th:field="*{annualIncome}" type="number" step="0.01">
+                    <div class="text-danger small" th:errors="*{annualIncome}"></div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Monthly debt payments</label>
+                    <input class="form-control" th:field="*{monthlyDebtPayments}" type="number" step="0.01">
+                    <div class="text-danger small" th:errors="*{monthlyDebtPayments}"></div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Credit score</label>
+                    <input class="form-control" th:field="*{creditScore}" type="number" min="300" max="850">
+                    <div class="text-danger small" th:errors="*{creditScore}"></div>
+                </div>
+            </div>
+        </div>
+        <div class="card mb-3">
+            <div class="card-header">Employment</div>
+            <div class="card-body row g-3">
+                <div class="col-md-5">
+                    <label class="form-label">Employment status</label>
+                    <select class="form-select" th:field="*{employmentStatus}">
+                        <option th:each="s : ${employmentStatuses}"
+                                th:value="${s}" th:text="${s}"></option>
+                    </select>
+                    <div class="text-danger small" th:errors="*{employmentStatus}"></div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Employer</label>
+                    <input class="form-control" th:field="*{employerName}">
+                    <div class="text-danger small" th:errors="*{employerName}"></div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Months employed</label>
+                    <input class="form-control" th:field="*{monthsEmployed}" type="number" min="0">
+                    <div class="text-danger small" th:errors="*{monthsEmployed}"></div>
+                </div>
+            </div>
+        </div>
+        <div class="card mb-3">
+            <div class="card-header">Loan</div>
+            <div class="card-body row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Amount</label>
+                    <input class="form-control" th:field="*{loanAmount}" type="number" step="0.01">
+                    <div class="text-danger small" th:errors="*{loanAmount}"></div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Term (months)</label>
+                    <input class="form-control" th:field="*{termMonths}" type="number" min="1">
+                    <div class="text-danger small" th:errors="*{termMonths}"></div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Purpose</label>
+                    <input class="form-control" th:field="*{loanPurpose}" placeholder="e.g. Home improvement">
+                    <div class="text-danger small" th:errors="*{loanPurpose}"></div>
+                </div>
+            </div>
+        </div>
+        <div class="card mb-3">
+            <div class="card-header">Supporting documents</div>
+            <div class="card-body">
+                <input class="form-control" type="file" name="files" multiple>
+                <div class="form-text">Pay stubs, bank statements, ID — PDF, images or text (max 10MB each).</div>
+            </div>
+        </div>
+        <button class="btn btn-primary" type="submit">Submit application</button>
+        <a class="btn btn-outline-secondary" th:href="@{/applications}">Cancel</a>
+    </form>
+</div>
+</body>
+</html>

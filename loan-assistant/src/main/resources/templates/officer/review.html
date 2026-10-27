@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head('Review application')}"></head>
+<body>
+<div th:replace="~{fragments/common :: navbar}"></div>
+<div class="container">
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="m-0">Application #<span th:text="${app.id}"></span></h3>
+        <span class="badge fs-6"
+              th:classappend="${app.status.name() == 'APPROVED'} ? 'text-bg-success'
+                            : (${app.status.name() == 'REJECTED'} ? 'text-bg-danger'
+                            : (${app.status.name() == 'PENDING_MANUAL_REVIEW'} ? 'text-bg-warning'
+                            : 'text-bg-secondary'))"
+              th:text="${app.status}"></span>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">Application</div>
+                <table class="table table-sm mb-0">
+                    <tr><th>Applicant</th><td th:text="${app.applicantName}"></td></tr>
+                    <tr><th>Email</th><td th:text="${app.applicantEmail}"></td></tr>
+                    <tr><th>Annual income</th><td th:text="${app.annualIncome}"></td></tr>
+                    <tr><th>Monthly debt payments</th><td th:text="${app.monthlyDebtPayments}"></td></tr>
+                    <tr><th>Credit score</th><td th:text="${app.creditScore}"></td></tr>
+                    <tr><th>Employment</th>
+                        <td th:text="${app.employmentStatus} + ' / ' + ${app.monthsEmployed} + ' mo'"></td></tr>
+                    <tr><th>Employer</th><td th:text="${app.employerName}"></td></tr>
+                    <tr><th>Loan amount</th><td th:text="${app.loanAmount}"></td></tr>
+                    <tr><th>Term</th><td th:text="${app.termMonths + ' months'}"></td></tr>
+                    <tr><th>Purpose</th><td th:text="${app.loanPurpose}"></td></tr>
+                </table>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header">Rules engine evaluation</div>
+                <table class="table table-sm mb-0">
+                    <thead><tr><th>Rule</th><th>Outcome</th><th>Detail</th></tr></thead>
+                    <tbody>
+                    <tr th:each="e : ${app.ruleEvaluations}">
+                        <td th:text="${e.ruleName}"></td>
+                        <td><span class="badge"
+                                  th:classappend="${e.outcome.name() == 'PASS'} ? 'text-bg-success'
+                                                : (${e.outcome.name() == 'FAIL'} ? 'text-bg-danger'
+                                                : 'text-bg-warning')"
+                                  th:text="${e.outcome}"></span></td>
+                        <td th:text="${e.detail}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header">Documents</div>
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item text-muted" th:if="${#lists.isEmpty(app.documents)}">
+                        No documents uploaded.
+                    </div>
+                    <a class="list-group-item list-group-item-action d-flex justify-content-between"
+                       th:each="doc : ${app.documents}"
+                       th:href="@{/officer/applications/{aid}/documents/{did}(aid=${app.id}, did=${doc.id})}">
+                        <span th:text="${doc.originalFilename}"></span>
+                        <small class="text-muted" th:text="${doc.sizeBytes} + ' B'"></small>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-3 border-info">
+                <div class="card-header bg-info-subtle">
+                    AI advisory <span class="text-muted small">(does not decide)</span>
+                    <span class="badge text-bg-secondary float-end"
+                          th:if="${aiAnalysis != null}"
+                          th:text="${aiAnalysis.modelUsed} + (${aiAnalysis.fallbackUsed} ? 'fallback' : 'claude')"></span>
+                </div>
+                <div class="card-body" th:if="${aiAnalysis != null}">
+                    <h6>Summary</h6>
+                    <p th:text="${aiAnalysis.summary}"></p>
+                    <h6>Missing information</h6>
+                    <pre class="small bg-light p-2 rounded" th:text="${aiAnalysis.missingInformation}"></pre>
+                    <h6>Inconsistencies</h6>
+                    <pre class="small bg-light p-2 rounded" th:text="${aiAnalysis.inconsistencies}"></pre>
+                    <h6>Risk factors</h6>
+                    <pre class="small bg-light p-2 rounded" th:text="${aiAnalysis.riskFactors}"></pre>
+                    <h6>Extracted fields</h6>
+                    <pre class="small bg-light p-2 rounded" th:text="${aiAnalysis.extractedDataJson}"></pre>
+                </div>
+                <div class="card-body text-muted" th:if="${aiAnalysis == null}">
+                    No AI analysis available.
+                </div>
+            </div>
+
+            <div class="card mb-3" th:if="${app.status.name() == 'PENDING_MANUAL_REVIEW'}">
+                <div class="card-header">Officer decision</div>
+                <div class="card-body">
+                    <form th:action="@{/officer/applications/{id}/decision(id=${app.id})}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Rationale (required)</label>
+                            <textarea class="form-control" name="rationale" rows="3" required
+                                      placeholder="Reason for your decision — recorded for audit"></textarea>
+                        </div>
+                        <button class="btn btn-success me-2" name="decision" value="APPROVED" type="submit">
+                            Approve</button>
+                        <button class="btn btn-danger" name="decision" value="REJECTED" type="submit">
+                            Reject</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mb-3" th:if="${!#lists.isEmpty(decisionHistory)}">
+                <div class="card-header">Decision history</div>
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item" th:each="d : ${decisionHistory}">
+                        <div class="d-flex justify-content-between">
+                            <strong th:text="${d.decision}"></strong>
+                            <small class="text-muted"
+                                   th:text="${#temporals.format(d.createdAt, 'yyyy-MM-dd HH:mm')}"></small>
+                        </div>
+                        <div class="small text-muted" th:text="'by ' + ${d.decidedBy} + ' (' + ${d.source} + ')'"></div>
+                        <div style="white-space: pre-line" th:text="${d.rationale}"></div>
+                        <div class="small mt-1" style="white-space: pre-line" th:text="${d.customerExplanation}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a class="btn btn-outline-secondary" th:href="@{/officer/queue}">Back to queue</a>
+</div>
+</body>
+</html>

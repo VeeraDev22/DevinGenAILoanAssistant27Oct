@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: loan-assistant
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/loandb?createDatabaseIfNotExist=true}
+    username: ${DB_USERNAME:loanuser}
+    password: ${DB_PASSWORD:loanpass}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 30MB
+  thymeleaf:
+    cache: false
+
+server:
+  port: ${SERVER_PORT:8080}
+
+anthropic:
+  api-key: ${ANTHROPIC_API_KEY:}
+  base-url: ${ANTHROPIC_BASE_URL:https://api.anthropic.com}
+  model: ${ANTHROPIC_MODEL:claude-sonnet-4-5-20250929}
+  max-tokens: 2048
+
+app:
+  upload-dir: ${UPLOAD_DIR:./uploads}
+
+# Configurable, auditable lending rules. Changing these values changes policy —
+# every evaluation persists the threshold used, so decisions remain auditable.
+lending:
+  rules:
+    min-credit-score: 640
+    review-credit-score: 700
+    max-dti-ratio: 0.43
+    review-dti-ratio: 0.36
+    min-annual-income: 30000
+    min-loan-amount: 1000
+    max-loan-amount: 250000
+    max-loan-to-income-ratio: 4.0
+    review-loan-to-income-ratio: 3.0
+    min-months-employed: 12
+    max-term-months: 84
+
+logging:
+  level:
+    com.example.loanassistant: INFO

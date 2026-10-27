@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head('Review queue')}"></head>
+<body>
+<div th:replace="~{fragments/common :: navbar}"></div>
+<div class="container">
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+
+    <h3 class="mb-3">Pending Manual Review</h3>
+    <div class="card mb-4">
+        <table class="table table-hover mb-0">
+            <thead>
+            <tr><th>#</th><th>Applicant</th><th>Amount</th><th>Credit</th><th>Submitted</th><th></th></tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(pending)}">
+                <td colspan="6" class="text-muted">Queue is empty.</td>
+            </tr>
+            <tr th:each="app : ${pending}">
+                <td th:text="${app.id}"></td>
+                <td th:text="${app.applicantName}"></td>
+                <td th:text="${app.loanAmount}"></td>
+                <td th:text="${app.creditScore}"></td>
+                <td th:text="${#temporals.format(app.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                <td><a class="btn btn-sm btn-primary" th:href="@{/officer/applications/{id}(id=${app.id})}">Review</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h5>Recent applications</h5>
+    <div class="card">
+        <table class="table table-sm mb-0">
+            <thead>
+            <tr><th>#</th><th>Applicant</th><th>Amount</th><th>Status</th><th>Submitted</th><th></th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="app : ${recent}">
+                <td th:text="${app.id}"></td>
+                <td th:text="${app.applicantName}"></td>
+                <td th:text="${app.loanAmount}"></td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${app.status.name() == 'APPROVED'} ? 'text-bg-success'
+                                        : (${app.status.name() == 'REJECTED'} ? 'text-bg-danger'
+                                        : (${app.status.name() == 'PENDING_MANUAL_REVIEW'} ? 'text-bg-warning'
+                                        : 'text-bg-secondary'))"
+                          th:text="${app.status}"></span>
+                </td>
+                <td th:text="${#temporals.format(app.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                <td><a class="btn btn-sm btn-outline-secondary"
+                       th:href="@{/officer/applications/{id}(id=${app.id})}">View</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
