@@ -4,3 +4,9 @@ spring:
     username: sa
     password:
     driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      # Skip schema validation under H2: in MODE=MySQL, H2 parses LONGTEXT as
+      # VARCHAR while Hibernate's H2 dialect expects CLOB for @Lob columns.
+      # Flyway still creates the real schema; MySQL keeps strict validation.
+      ddl-auto: none
